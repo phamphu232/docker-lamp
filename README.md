@@ -1,6 +1,10 @@
 # docker-lamp
 
 ```
+chomd +x install && ./install
+
+# OR
+
 docker compose up -d
 docker exec -it app bash -c "/script/install-apache"
 docker exec -it app bash -c "/script/install-php 7.3 dev"
@@ -15,6 +19,7 @@ docker ps
 ```
 
 ```
+## Sample configuration file: 
 # apache2/sites-enabled/hello-world.conf
 <VirtualHost *:80>
   ServerAdmin  phamphu232@gmail.com
@@ -37,4 +42,10 @@ docker ps
     SetHandler "proxy:unix:/run/php/php7.3-fpm.sock|fcgi://localhost"
   </FilesMatch>
 </VirtualHost>
+
+
+## phpMyAdmin configuration options
+# Download https://www.phpmyadmin.net/downloads/
+# Copy and Edit /var/www/phpmyadmin/config.sample.inc.php 
+Alias /phpmyadmin /var/www/phpmyadmin
 ```
