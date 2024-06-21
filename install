@@ -1,0 +1,5 @@
+docker compose up -d
+docker exec -it app bash -c "/script/install-apache"
+docker exec -it app bash -c "/script/install-php 7.3 dev"
+docker exec -it app bash -c "/script/install-php 7.2 dev"
+docker exec -it app bash -c "/script/install-php 5.6 dev"

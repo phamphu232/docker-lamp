@@ -1,0 +1,29 @@
+#!/bin/sh
+
+APACHE2_VERSION="$1"
+
+DEBIAN_FRONTEND=noninteractive
+
+userdel www-data
+groupadd -g ${GID} www-data
+useradd -u ${UID} -g ${GID} -d /var/www -M -s /usr/sbin/nologin www-data
+
+if [ -z ${APACHE2_VERSION} ]; then
+  apt-get update && apt-get -y install apache2=2.4.52-1ubuntu4.9
+else
+  apt-get update && apt-get -y install apache2=${APACHE2_VERSION}
+fi
+
+chown -R www-data:www-data /etc/apache2
+chown -R www-data:www-data /var/www
+
+a2enmod actions alias proxy proxy_http proxy_fcgi rewrite socache_shmcb ssl setenvif
+service apache2 restart
+
+rm -f /var/run/apache2/apache2.pid
+apachectl configtest
+apachectl start
+
+echo 'rm -f /var/run/apache2/apache2.pid' >> /script/startup
+echo 'apachectl configtest' >> /script/startup
+echo 'apachectl start' >> /script/startup

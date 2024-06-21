@@ -1,0 +1,32 @@
+#!/bin/sh
+# set -e;
+
+STARTUP_PHP=/script/startup
+
+INITIALIZED=/initialized
+
+if [ ! -e ${INITIALIZED} ]; then
+  echo "=== Begin Setup ==="
+  echo -e "\n***** $(date) *****"
+  cat /dev/null > ${STARTUP_PHP}
+  touch ${INITIALIZED}
+  echo "=== End Setup ==="
+fi
+
+# Allow files in /startup folder executeable, support in case mount volume
+if [ -d "/script" ]; then
+  if [ $(ls -A "/script" | wc -l) -gt 0 ]; then
+    sed -i -e 's/\r$//' /script/* && chmod +x /script/*
+  fi
+fi
+
+if [ -e ${STARTUP_PHP} ] && [ -s ${STARTUP_PHP} ]; then
+  # source ${STARTUP_PHP}
+  . "${STARTUP_PHP}"
+fi
+
+# ENTRYPOINT / CMD combinations
+# https://docs.docker.com/engine/reference/builder/
+exec "$@"
+
+tail -f /dev/null

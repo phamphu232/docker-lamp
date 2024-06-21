@@ -1,0 +1,79 @@
+#!/bin/sh
+
+PHP_VERSION="$1"
+
+INSTALL_XDEBUG="$2"
+
+if [ -z ${PHP_VERSION} ]; then
+  echo "Error php version required by first argument, example: ./install-php.sh 7.3 dev"
+  exit;
+fi
+
+DEBIAN_FRONTEND=noninteractive
+
+apt-get update
+apt-get install -y software-properties-common
+
+apt-add-repository ppa:ondrej/php -y && apt-get install -y \
+  php${PHP_VERSION} \
+  php${PHP_VERSION}-bcmath \
+  php${PHP_VERSION}-bz2 \
+  php${PHP_VERSION}-common \
+  php${PHP_VERSION}-curl \
+  php${PHP_VERSION}-dba \
+  php${PHP_VERSION}-dev \
+  php${PHP_VERSION}-enchant \
+  php${PHP_VERSION}-fpm \
+  php${PHP_VERSION}-gd \
+  php${PHP_VERSION}-gmp \
+  php${PHP_VERSION}-intl \
+  php${PHP_VERSION}-imap \
+  php${PHP_VERSION}-ldap \
+  php${PHP_VERSION}-mbstring \
+  php${PHP_VERSION}-mcrypt \
+  php${PHP_VERSION}-memcached \
+  php${PHP_VERSION}-mysql \
+  php${PHP_VERSION}-odbc \
+  php${PHP_VERSION}-pspell \
+  php${PHP_VERSION}-snmp \
+  php${PHP_VERSION}-soap \
+  php${PHP_VERSION}-sockets \
+  php${PHP_VERSION}-sqlite3 \
+  php${PHP_VERSION}-ssh2 \
+  php${PHP_VERSION}-sybase \
+  php${PHP_VERSION}-tidy \
+  php${PHP_VERSION}-xml \
+  php${PHP_VERSION}-xmlrpc \
+  php${PHP_VERSION}-zip
+
+update-alternatives --set php $(which php${PHP_VERSION}) \
+&& update-alternatives --set phar $(which phar${PHP_VERSION}) \
+&& update-alternatives --set phar.phar $(which phar.phar${PHP_VERSION}) \
+&& update-alternatives --set phpize $(which phpize${PHP_VERSION}) \
+&& update-alternatives --set php-config $(which php-config${PHP_VERSION})
+
+service php${PHP_VERSION}-fpm start
+a2enconf php${PHP_VERSION}-fpm
+
+echo service php${PHP_VERSION}-fpm start >> /script/startup
+
+if [ "${INSTALL_XDEBUG}" = "dev" ]; then
+  apt-get install -y php${PHP_VERSION}-xdebug \
+  && XDEBUG_INI_PATH=$(php${PHP_VERSION} --ini | grep "xdebug.ini"  | sed 's/,//g') \
+  && cp -f $XDEBUG_INI_PATH $XDEBUG_INI_PATH.origin \
+  && echo -e "\n\
+    zend_extension=xdebug.so\n\
+    \n\
+    [xdebug]\n\
+    ; xdebug.idekey=xdebugDocker\n\
+    ; xdebug3\n\
+    xdebug.mode=debug\n\
+    xdebug.start_with_request=yes\n\
+    xdebug.client_host=host.docker.internal\n\
+    xdebug.client_port=9003\n\
+    ; xdebug2\n\
+    xdebug.remote_enable=1\n\
+    xdebug.remote_host=host.docker.internal\n\
+    xdebug.remote_port=9003\n\
+  " | sed -z 's/\n[ ]*/\n/g' > $XDEBUG_INI_PATH
+fi

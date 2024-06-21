@@ -1,0 +1,76 @@
+version: '3.7'
+
+networks:
+  net1:
+    driver: bridge
+
+services:
+  apache2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.apache2
+      args:
+        UID: ${UID:-1000}
+        GID: ${UID:-1000}
+    container_name: apache2
+    networks:
+      - net1
+    ports:
+      - '${APACHE_PORT:-8080}:80'
+      - '${APACHE_PORT_SECURE:-8443}:443'
+    volumes:
+     ## localtime linux only
+      - /etc/localtime:/etc/localtime:ro
+      - ./apache2/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache2/conf/extra/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - ./run/php:/run/php
+      - ./htdocs:/usr/local/apache2/htdocs
+    working_dir: /usr/local/apache2/htdocs
+  php5.6:
+    image: docker.io/php:5.6-fpm-alpine3.8
+    container_name: php5.6
+    restart: unless-stopped
+    expose:
+      - '9000'
+    volumes:
+      ## localtime linux only
+      - /etc/localtime:/etc/localtime:ro
+      - ./php5.6:/usr/local/etc/php
+      - ./apache2/htdocs:/usr/local/apache2/htdocs
+    working_dir: /usr/local/apache2/htdocs
+    networks:
+      - net1
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+  php7.2:
+    image: docker.io/php:7.2-fpm-alpine3.12
+    container_name: php7.2
+    restart: unless-stopped
+    expose:
+      - '9000'
+    volumes:
+      ## localtime linux only
+      - /etc/localtime:/etc/localtime:ro
+      - ./php7.2:/usr/local/etc/php
+      - ./apache2/htdocs:/usr/local/apache2/htdocs
+    working_dir: /usr/local/apache2/htdocs
+    networks:
+      - net1
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+  php7.3:
+    image: docker.io/php:7.3-fpm-alpine3.15
+    container_name: php7.3
+    restart: unless-stopped
+    expose:
+      - '9000'
+    volumes:
+      ## localtime linux only
+      - /etc/localtime:/etc/localtime:ro
+      - ./php7.3:/usr/local/etc/php
+      # - ./apache2/htdocs:/usr/local/apache2/htdocs
+    working_dir: /usr/local/apache2/htdocs
+    networks:
+      - net1
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

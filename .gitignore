@@ -1,0 +1,16 @@
+
+.DS_Store
+
+*access_log
+*error_log
+*.log
+
+apache2/sites-enabled/*
+!apache2/sites-enabled/000-default.conf
+
+/www/*
+/www/*/**
+!/www/html
+!/www/html/index.html
+
+script/startup

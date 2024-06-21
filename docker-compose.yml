@@ -1,0 +1,33 @@
+version: '3.7'
+
+networks:
+  net1:
+    driver: bridge
+
+services:
+  app:
+    image: docker.io/ubuntu:22.04
+    container_name: app
+    networks:
+      - net1
+    ports:
+      - '${APACHE_PORT:-80}:80'
+      - '${APACHE_PORT_SECURE:-443}:443'
+    volumes:
+      ## localtime linux only
+      - /etc/localtime:/etc/localtime:ro
+      - ./apache2/apache2.conf:/etc/apache2/apache2.conf
+      - ./apache2/sites-enabled:/etc/apache2/sites-enabled
+      - ./entrypoint:/entrypoint
+      - ./script:/script
+      - ./www:/var/www
+    working_dir: /var/www
+    environment:
+      UID: '${UID:-1000}'
+      GID: '${GID:-1000}'
+    # user: '${UID:-1000}:${GID:-1000}'
+    ## command: ["tail", "-f", "/dev/null"]
+    command: /entrypoint
+    restart: unless-stopped
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
