@@ -31,3 +31,17 @@ services:
     restart: unless-stopped
     extra_hosts:
       - 'host.docker.internal:host-gateway'
+
+  nettools:
+    image: phamphu232/nettools
+    container_name: nettools
+    network_mode: "container:app"
+    volumes:
+      ## localtime linux only
+      - /etc/localtime:/etc/localtime:ro
+      - ./script:/script
+      - ./www:/var/www
+    working_dir: /var/www
+    depends_on:
+      - app
+    command: ["tail", "-f", "/dev/null"]

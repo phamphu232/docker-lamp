@@ -1,6 +1,7 @@
 # docker-lamp
 
 ```
+## Setup
 chomd +x install && ./install
 
 # OR
@@ -16,6 +17,16 @@ docker compose rm -f app
 docker compose up -d app
 docker compose logs app
 docker ps
+```
+
+```
+## Change default php version
+PHP_VERSION=7.3
+update-alternatives --set php $(which php${PHP_VERSION}) \
+&& update-alternatives --set phar $(which phar${PHP_VERSION}) \
+&& update-alternatives --set phar.phar $(which phar.phar${PHP_VERSION}) \
+&& update-alternatives --set phpize $(which phpize${PHP_VERSION}) \
+&& update-alternatives --set php-config $(which php-config${PHP_VERSION})
 ```
 
 ```

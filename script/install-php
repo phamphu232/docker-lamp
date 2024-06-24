@@ -44,7 +44,8 @@ apt-add-repository ppa:ondrej/php -y && apt-get install -y \
   php${PHP_VERSION}-tidy \
   php${PHP_VERSION}-xml \
   php${PHP_VERSION}-xmlrpc \
-  php${PHP_VERSION}-zip
+  php${PHP_VERSION}-zip \
+  libapache2-mod-php${PHP_VERSION}
 
 update-alternatives --set php $(which php${PHP_VERSION}) \
 && update-alternatives --set phar $(which phar${PHP_VERSION}) \
@@ -54,6 +55,8 @@ update-alternatives --set php $(which php${PHP_VERSION}) \
 
 service php${PHP_VERSION}-fpm start
 a2enconf php${PHP_VERSION}-fpm
+## Only one php module is enabled at a time.
+# a2enmod php${PHP_VERSION}
 
 echo service php${PHP_VERSION}-fpm start >> /script/startup
 
